@@ -8,7 +8,7 @@
     html, body {
       margin: 0;
       padding: 0;
-      height: 100 %;
+      height: 100%;
       background: black;
       overflow: hidden;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -16,64 +16,54 @@
 
     .container {
       position: relative;
-      width: 100 %;
-      height: 100 %;
+      width: 100%;
+      height: 100%;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       text-align: center;
       pointer-events: none;
-      padding: 20 px;
+      padding: 20px;
       box-sizing: border-box;
     }
 
     #message {
-      font-size: 7 vw;
+      font-size: 7vw;
       font-weight: 800;
       line-height: 1.25;
       opacity: 1;
-      transition: opacity 1 s ease;
+      transition: opacity 1s ease;
       word-break: break-word;
     }
 
     .rainbow-text {
-      background: linear-gradient (
-        90 deg,
-        red,
-        orange,
-        yellow,
-        lime,
-        cyan,
-        dodgerblue,
-        violet,
-        red
-      );
-      background-size: 400 % 100 %;
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      animation: rainbow 6 s linear infinite;
+      animation: rainbowColor 4s linear infinite;
     }
 
-    @keyframes rainbow {
-      0 % { background-position: 0 % 50 %; }
-      100 % { background-position: 100 % 50 %; }
+    @keyframes rainbowColor {
+      0%   { color: #ff0033; }
+      16%  { color: #ff9900; }
+      32%  { color: #ffee00; }
+      48%  { color: #00ff66; }
+      64%  { color: #00ccff; }
+      80%  { color: #6633ff; }
+      100% { color: #ff0033; }
     }
 
     #heart {
-      font-size: 22 vw;
-      margin-top: 20 px;
+      font-size: 22vw;
+      margin-top: 20px;
       opacity: 0;
-      transform: scale (0.1);
+      transform: scale(0.1);
       transition:
-        transform 3.5 s ease-out,
-        opacity 1 s ease-in;
+        transform 3.5s ease-out,
+        opacity 1s ease-in;
     }
 
     #heart.grow {
       opacity: 1;
-      transform: scale (2.8);
+      transform: scale(2.8);
     }
 
     canvas {
@@ -105,16 +95,19 @@
       if (index < fullText.length) {
         messageEl.textContent += fullText.charAt(index);
         index++;
-        setTimeout(typeNext, 90);
+        setTimeout(typeNext, 90); // rychlost psaní
       } else {
         setTimeout(() => {
           heartEl.classList.add("grow");
-          setTimeout(startFireworks, 3500);
-        }, 600);
+          setTimeout(startFireworks, 4000); // víc času na přečtení a srdce
+        }, 800);
       }
     }
 
-    setTimeout(typeNext, 500);
+    // odstartuj psaní po malém zpoždění
+    window.addEventListener("DOMContentLoaded", () => {
+      setTimeout(typeNext, 600);
+    });
 
     function resizeCanvas() {
       canvas.width = window.innerWidth;
@@ -124,6 +117,7 @@
     window.addEventListener("resize", resizeCanvas);
 
     function startFireworks() {
+      // schovej text a srdce
       messageEl.style.opacity = 0;
       heartEl.style.opacity = 0;
 
