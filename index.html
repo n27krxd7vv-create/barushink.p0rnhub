@@ -47,12 +47,14 @@
       100% { color: #ff0033; }
     }
 
+    /* srdce + kytička – defaultně vůbec nezabírají místo (display:none) */
     #heart,
     #flower {
       margin-top: 24px;
       opacity: 0;
       transform: scale(0.1);
       transition: transform 3s ease-out, opacity 1s ease-in;
+      display: none;
     }
 
     #flower {
@@ -60,8 +62,9 @@
     }
 
     .grow {
+      display: block;
       opacity: 1;
-      transform: scale(3.2);
+      transform: scale(2.6);
     }
 
     /* DUHOVÉ SRDCE – CSS tvar */
@@ -207,8 +210,8 @@
     const ctx = canvas.getContext("2d");
     const clickBtn = document.getElementById("clickBtn");
 
-    const fullText1 = "Všechno nejlepší k svátku Baru";
-    const fullText2 = "Měj krásný den";
+    const fullText1 = "všechno nejlepší k svátku Baru";
+    const fullText2 = "měj krásný den";
 
     let fireworksActive = false;
     let secondSequenceStarted = false;
@@ -340,8 +343,10 @@
     }
 
     function startFireworks() {
+      heartEl.classList.remove("grow");
+      heartEl.style.display = "none";
+
       messageEl.style.opacity = 0;
-      heartEl.style.opacity = 0;
 
       canvas.style.display = "block";
       fireworksActive = true;
