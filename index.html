@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Všechno nejlepší k svátku, Baru!</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100 %;
+      background: black;
+      overflow: hidden;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .container {
+      position: relative;
+      width: 100 %;
+      height: 100 %;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      pointer-events: none;
+      padding: 20 px;
+      box-sizing: border-box;
+    }
+
+    #message {
+      font-size: 7 vw;
+      font-weight: 800;
+      line-height: 1.25;
+      opacity: 1;
+      transition: opacity 1 s ease;
+      word-break: break-word;
+    }
+
+    .rainbow-text {
+      background: linear-gradient (
+        90 deg,
+        red,
+        orange,
+        yellow,
+        lime,
+        cyan,
+        dodgerblue,
+        violet,
+        red
+      );
+      background-size: 400 % 100 %;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: rainbow 6 s linear infinite;
+    }
+
+    @ keyframes rainbow {
+      0% { background-position: 0 % 50 %; }
+      100% { background-position: 100% 50%; }
+    }
+
+    #heart {
+      font-size: 22 vw;
+      margin-top: 20 px;
+      opacity: 0;
+      transform: scale (0.1);
+      transition:
+        transform 3.5 s ease-out,
+        opacity 1 s ease-in;
+    }
+
+    #heart.grow {
+      opacity: 1;
+      transform: scale (2.8);
+    }
+
+    canvas {
+      position: fixed;
+      inset: 0;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div id="message" class="rainbow-text"></div>
+    <div id="heart" class="rainbow-text">❤</div>
+  </div>
+
+  <canvas id="fireworks"></canvas>
+
+  <script>
+    const messageEl = document.getElementById("message");
+    const heartEl = document.getElementById("heart");
+    const canvas = document.getElementById("fireworks");
+    const ctx = canvas.getContext("2d");
+
+    const fullText = "všechno nejlepší k svátku Baru";
+    let index = 0;
+
+    function typeNext() {
+      if (index < fullText.length) {
+        messageEl.textContent += fullText.charAt(index);
+        index++;
+        setTimeout(typeNext, 90);
+      } else {
+        setTimeout(() => {
+          heartEl.classList.add("grow");
+          setTimeout(startFireworks, 3500);
+        }, 600);
+      }
+    }
+
+    setTimeout(typeNext, 500);
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    window.addEventListener("resize", resizeCanvas);
+
+    function startFireworks() {
+      messageEl.style.opacity = 0;
+      heartEl.style.opacity = 0;
+
+      canvas.style.display = "block";
+      resizeCanvas();
+
+      const particles = [];
+      const colors = ["#ff0055", "#ffaa00", "#ffee00", "#00ff99", "#00ccff", "#9966ff"];
+
+      function createFirework() {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height * 0.5;
+        const count = 70;
+
+        for (let i = 0; i < count; i++) {
+          const angle = (Math.PI * 2 * i) / count;
+          const speed = Math.random() * 4 + 1;
+
+          particles.push({
+            x,
+            y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            alpha: 1,
+            color: colors[Math.floor(Math.random() * colors.length)]
+          });
+        }
+      }
+
+      const duration = 7000;
+      let startTime = null;
+
+      function animate(time) {
+        if (!startTime) startTime = time;
+        const elapsed = time - startTime;
+
+        ctx.globalCompositeOperation = "destination-out";
+        ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.globalCompositeOperation = "lighter";
+
+        for (let i = particles.length - 1; i >= 0; i--) {
+          const p = particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.03;
+          p.alpha -= 0.01;
+
+          if (p.alpha <= 0) {
+            particles.splice(i, 1);
+            continue;
+          }
+
+          ctx.globalAlpha = p.alpha;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.fill();
+        }
+
+        ctx.globalAlpha = 1;
+
+        if (elapsed < duration) {
+          if (Math.random() < 0.1) createFirework();
+          requestAnimationFrame(animate);
+        } else {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          canvas.style.display = "none";
+        }
+      }
+
+      createFirework();
+      requestAnimationFrame(animate);
+    }
+  </script>
+
+</body>
+</html>
