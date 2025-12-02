@@ -8,7 +8,7 @@
     html, body {
       margin: 0;
       padding: 0;
-      height: 100%;
+      height: 100 %;
       background: black;
       overflow: hidden;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -16,32 +16,32 @@
 
     .container {
       position: relative;
-      width: 100%;
-      height: 100%;
+      width: 100 %;
+      height: 100 %;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       text-align: center;
       pointer-events: none;
-      padding: 20px;
+      padding: 20 px;
       box-sizing: border-box;
     }
 
     #message {
-      font-size: 7vw;
+      font-size: 7 vw;
       font-weight: 800;
       line-height: 1.25;
       opacity: 1;
-      transition: opacity 1s ease;
+      transition: opacity 1 s ease;
       word-break: break-word;
     }
 
     .rainbow-text {
-      animation: rainbowColor 4s linear infinite;
+      animation: rainbowColor 4 s linear infinite;
     }
 
-    @keyframes rainbowColor {
+    @ keyframes rainbowColor {
       0%   { color: #ff0033; }
       16%  { color: #ff9900; }
       32%  { color: #ffee00; }
@@ -51,25 +51,79 @@
       100% { color: #ff0033; }
     }
 
-    #heart {
-      font-size: 22vw;
-      margin-top: 20px;
+    #heart, #flower {
+      font-size: 22 vw;
+      margin-top: 20 px;
       opacity: 0;
-      transform: scale(0.1);
+      transform: scale (0.1);
       transition:
-        transform 3.5s ease-out,
-        opacity 1s ease-in;
+        transform 3.5 s ease-out,
+        opacity 1 s ease-in;
+      position: relative;
     }
 
-    #heart.grow {
+    #flower {
+      font-size: 18 vw;
+      margin-top: 24 px;
+    }
+
+    .grow {
       opacity: 1;
-      transform: scale(2.8);
+      transform: scale (2.8);
+    }
+
+    /* třpytky kolem srdce */
+    #heart.sparkle::before,
+    #heart.sparkle::after {
+      content: "";
+      position: absolute;
+      top: 50 %;
+      left: 50 %;
+      width: 170 %;
+      height: 170 %;
+      transform: translate (-50 %, -50 %);
+      pointer-events: none;
+      background:
+        radial-gradient (circle, rgba (255,255,255,0.9) 0, transparent 40 %) 10 % 20 % / 8 px 8 px no-repeat,
+        radial-gradient (circle, rgba (255,255,255,0.9) 0, transparent 40 %) 80 % 30 % / 7 px 7 px no-repeat,
+        radial-gradient (circle, rgba (255,255,255,0.8) 0, transparent 40 %) 30 % 70 % / 6 px 6 px no-repeat,
+        radial-gradient (circle, rgba (255,255,255,0.8) 0, transparent 40 %) 70 % 80 % / 9 px 9 px no-repeat,
+        radial-gradient (circle, rgba (255,255,255,0.9) 0, transparent 40 %) 50 % 10 % / 5 px 5 px no-repeat;
+      opacity: 0;
+      filter: blur (0.5 px);
+      animation: sparkle 1.8 s ease-in-out infinite;
+    }
+
+    @ keyframes sparkle {
+      0 %, 100 % { opacity: 0; transform: translate (-50 %, -50 %) scale (1); }
+      40 %, 60 % { opacity: 1; transform: translate (-50 %, -50 %) scale (1.05); }
     }
 
     canvas {
       position: fixed;
       inset: 0;
       display: none;
+    }
+
+    #clickBtn {
+      position: fixed;
+      top: 50 %;
+      left: 50 %;
+      transform: translate (-50 %, -50 %);
+      padding: 12 px 28 px;
+      font-size: 18 px;
+      border-radius: 999 px;
+      border: none;
+      background: #ffffff;
+      color: #000;
+      cursor: pointer;
+      z-index: 5;
+      display: none;
+      pointer-events: auto;
+    }
+
+    #clickBtn:active {
+      transform: translate (-50 %, -50 %) scale (0.95);
     }
   </style>
 </head>
@@ -78,35 +132,56 @@
   <div class="container">
     <div id="message" class="rainbow-text"></div>
     <div id="heart" class="rainbow-text">❤</div>
+    <div id="flower" class="rainbow-text">🌸</div>
   </div>
 
+  <button id="clickBtn">klik</button>
   <canvas id="fireworks"></canvas>
 
   <script>
     const messageEl = document.getElementById("message");
     const heartEl = document.getElementById("heart");
+    const flowerEl = document.getElementById("flower");
     const canvas = document.getElementById("fireworks");
     const ctx = canvas.getContext("2d");
+    const clickBtn = document.getElementById("clickBtn");
 
-    const fullText = "všechno nejlepší k svátku Baru";
-    let index = 0;
+    const fullText1 = "všechno nejlepší k svátku Baru";
+    const fullText2 = "měj krásný den";
 
-    function typeNext() {
-      if (index < fullText.length) {
-        messageEl.textContent += fullText.charAt(index);
-        index++;
-        setTimeout(typeNext, 90); // rychlost psaní
-      } else {
-        setTimeout(() => {
-          heartEl.classList.add("grow");
-          setTimeout(startFireworks, 4000); // víc času na přečtení a srdce
-        }, 800);
+    let typingIndex = 0;
+    let typingTimeout = null;
+    let currentText = "";
+    let fireworksActive = false;
+    let secondSequenceStarted = false;
+
+    function typeText(text, onComplete) {
+      currentText = text;
+      typingIndex = 0;
+      messageEl.textContent = "";
+      messageEl.style.opacity = 1;
+
+      function step() {
+        if (typingIndex < currentText.length) {
+          messageEl.textContent += currentText.charAt(typingIndex);
+          typingIndex++;
+          typingTimeout = setTimeout(step, 150); // pomalejší psaní
+        } else {
+          if (onComplete) onComplete();
+        }
       }
+      step();
     }
 
-    // odstartuj psaní po malém zpoždění
     window.addEventListener("DOMContentLoaded", () => {
-      setTimeout(typeNext, 600);
+      setTimeout(() => {
+        typeText(fullText1, () => {
+          setTimeout(() => {
+            heartEl.classList.add("grow", "sparkle");
+            setTimeout(startFireworks, 4000);
+          }, 800);
+        });
+      }, 600);
     });
 
     function resizeCanvas() {
@@ -116,83 +191,162 @@
 
     window.addEventListener("resize", resizeCanvas);
 
+    const particles = [];
+    const rings = [];
+    const colors = ["#ff0055", "#ffaa00", "#ffee00", "#00ff99", "#00ccff", "#9966ff"];
+
+    function createFirework() {
+      const x = Math.random() * canvas.width;
+      const y = Math.random() * canvas.height * 0.5;
+      const count = 70;
+
+      for (let i = 0; i < count; i++) {
+        const angle = (Math.PI * 2 * i) / count;
+        const speed = Math.random() * 4 + 1;
+
+        particles.push({
+          x,
+          y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          alpha: 1,
+          color: colors[Math.floor(Math.random() * colors.length)]
+        });
+      }
+
+      // světelné kruhy
+      rings.push({
+        x,
+        y,
+        radius: 0,
+        alpha: 1
+      });
+    }
+
+    let startTime = null;
+    const duration = 7000;
+    let animationFrameId = null;
+
+    function animate(time) {
+      if (!fireworksActive) return;
+
+      if (!startTime) startTime = time;
+      const elapsed = time - startTime;
+
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.globalCompositeOperation = "lighter";
+
+      // částice
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.03;
+        p.alpha -= 0.01;
+
+        if (p.alpha <= 0) {
+          particles.splice(i, 1);
+          continue;
+        }
+
+        ctx.globalAlpha = p.alpha;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.fill();
+      }
+
+      // světelné kruhy
+      for (let i = rings.length - 1; i >= 0; i--) {
+        const r = rings[i];
+        r.radius += 2;
+        r.alpha -= 0.01;
+        if (r.alpha <= 0) {
+          rings.splice(i, 1);
+          continue;
+        }
+        ctx.globalAlpha = r.alpha;
+        ctx.beginPath();
+        ctx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
+        ctx.strokeStyle = "rgba(255,255,255,0.7)";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+
+      ctx.globalAlpha = 1;
+
+      if (!secondSequenceStarted && elapsed < duration) {
+        if (Math.random() < 0.1) createFirework();
+        animationFrameId = requestAnimationFrame(animate);
+      } else if (!secondSequenceStarted && elapsed >= duration) {
+        // konec bez kliknutí – zčerná obrazovka
+        fireworksActive = false;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        canvas.style.display = "none";
+      }
+    }
+
     function startFireworks() {
-      // schovej text a srdce
       messageEl.style.opacity = 0;
       heartEl.style.opacity = 0;
 
       canvas.style.display = "block";
       resizeCanvas();
 
-      const particles = [];
-      const colors = ["#ff0055", "#ffaa00", "#ffee00", "#00ff99", "#00ccff", "#9966ff"];
-
-      function createFirework() {
-        const x = Math.random() * canvas.width;
-        const y = Math.random() * canvas.height * 0.5;
-        const count = 70;
-
-        for (let i = 0; i < count; i++) {
-          const angle = (Math.PI * 2 * i) / count;
-          const speed = Math.random() * 4 + 1;
-
-          particles.push({
-            x,
-            y,
-            vx: Math.cos(angle) * speed,
-            vy: Math.sin(angle) * speed,
-            alpha: 1,
-            color: colors[Math.floor(Math.random() * colors.length)]
-          });
-        }
-      }
-
-      const duration = 7000;
-      let startTime = null;
-
-      function animate(time) {
-        if (!startTime) startTime = time;
-        const elapsed = time - startTime;
-
-        ctx.globalCompositeOperation = "destination-out";
-        ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        ctx.globalCompositeOperation = "lighter";
-
-        for (let i = particles.length - 1; i >= 0; i--) {
-          const p = particles[i];
-          p.x += p.vx;
-          p.y += p.vy;
-          p.vy += 0.03;
-          p.alpha -= 0.01;
-
-          if (p.alpha <= 0) {
-            particles.splice(i, 1);
-            continue;
-          }
-
-          ctx.globalAlpha = p.alpha;
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
-          ctx.fillStyle = p.color;
-          ctx.fill();
-        }
-
-        ctx.globalAlpha = 1;
-
-        if (elapsed < duration) {
-          if (Math.random() < 0.1) createFirework();
-          requestAnimationFrame(animate);
-        } else {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          canvas.style.display = "none";
-        }
-      }
-
+      fireworksActive = true;
+      startTime = null;
       createFirework();
-      requestAnimationFrame(animate);
+      animationFrameId = requestAnimationFrame(animate);
+
+      // ukázat tlačítko "klik" po krátké době
+      setTimeout(() => {
+        if (!secondSequenceStarted && fireworksActive) {
+          clickBtn.style.display = "inline-block";
+        }
+      }, 1500);
     }
+
+    function startSecondSequence() {
+      if (secondSequenceStarted) return;
+      secondSequenceStarted = true;
+      fireworksActive = false;
+      clickBtn.style.display = "none";
+
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      canvas.style.display = "none";
+
+      // druhý text "měj krásný den"
+      typeText(fullText2, () => {
+        setTimeout(() => {
+          messageEl.style.opacity = 0;
+          showFlower();
+        }, 1000);
+      });
+    }
+
+    function showFlower() {
+      flowerEl.style.opacity = 1;
+      flowerEl.classList.add("grow");
+      setTimeout(() => {
+        flowerEl.style.opacity = 0;
+      }, 4000);
+    }
+
+    clickBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      startSecondSequence();
+    });
+
+    // kliknutí na obrazovku během ohňostroje
+    canvas.addEventListener("click", startSecondSequence);
+    document.body.addEventListener("click", (e) => {
+      if (!fireworksActive) return;
+      startSecondSequence();
+    });
   </script>
 
 </body>
