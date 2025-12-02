@@ -111,12 +111,17 @@
     const clickBtn = document.getElementById("clickBtn");
 
     const fullText1 = "všechno nejlepší k svátku Baru";
-    const fullText2 = "měj krásný den kočko";
+    const fullTextMid = "tvůj vlastní sváteční web";
+    const fullText2 = "měj krásný den";
 
+    let stage = 1; // 1 = ohňostroj, 2 = konfety, 3 = finální srdce
+    let animationRunning = false;
     let fireworksActive = false;
-    let secondSequenceStarted = false;
-    let particles = [];
-    let rings = [];
+    let confettiActive = false;
+
+    let particles = [];   // pro ohňostroj
+    let rings = [];       // kruhy ohňostroje
+    let confettiPieces = []; // konfety
 
     // ===== pomalé psaní textu =====
     function typeText(text, onComplete) {
@@ -135,20 +140,7 @@
       step();
     }
 
-    // ===== první sekvence =====
-    function startFirstSequence() {
-      typeText(fullText1, () => {
-        // zkrácená prodleva před ohňostrojem (cca poloviční)
-        setTimeout(() => {
-          startFireworks();
-        }, 900);
-      });
-    }
-
-    // spouštíme hned po načtení (script je na konci body)
-    startFirstSequence();
-
-    // ===== canvas / ohňostroj =====
+    // ===== CANVAS / ANIMACE =====
     function resizeCanvas() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
@@ -156,7 +148,8 @@
     resizeCanvas();
     window.addEventListener("resize", resizeCanvas);
 
-    const colors = ["#ff0055", "#ffaa00", "#ffee00", "#00ff99", "#00ccff", "#9966ff"];
+    const fireworkColors = ["#ff0055", "#ffaa00", "#ffee00", "#00ff99", "#00ccff", "#9966ff"];
+    const confettiColors = ["#ff1744", "#ffea00", "#00e676", "#2979ff", "#ff9100", "#e040fb"];
 
     function createFirework() {
       const x = Math.random() * canvas.width;
@@ -173,7 +166,7 @@
           vx: Math.cos(angle) * speed,
           vy: Math.sin(angle) * speed,
           alpha: 1,
-          color: colors[Math.floor(Math.random() * colors.length)]
+          color: fireworkColors[Math.floor(Math.random() * fireworkColors.length)]
         });
       }
 
@@ -186,8 +179,22 @@
       });
     }
 
+    function spawnConfettiPiece() {
+      const size = Math.random() * 8 + 4;
+      confettiPieces.push({
+        x: Math.random() * canvas.width,
+        y: -10,
+        vy: Math.random() * 2 + 1.5,
+        vx: (Math.random() - 0.5) * 1,
+        size,
+        color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
+        angle: Math.random() * Math.PI * 2,
+        vAngle: (Math.random() - 0.5) * 0.2
+      });
+    }
+
     function animate() {
-      if (!fireworksActive) return;
+      if (!animationRunning) return;
 
       ctx.globalCompositeOperation = "source-over";
       ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
@@ -195,51 +202,88 @@
 
       ctx.globalCompositeOperation = "lighter";
 
-      // částice
-      for (let i = particles.length - 1; i >= 0; i--) {
-        const p = particles[i];
-        p.x += p.vx;
-        p.y += p.vy;
-        p.vy += 0.03;
-        p.alpha -= 0.01;
+      // ohňostroj
+      if (fireworksActive) {
+        for (let i = particles.length - 1; i >= 0; i--) {
+          const p = particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.03;
+          p.alpha -= 0.01;
 
-        if (p.alpha <= 0) {
-          particles.splice(i, 1);
-          continue;
+          if (p.alpha <= 0) {
+            particles.splice(i, 1);
+            continue;
+          }
+
+          ctx.globalAlpha = p.alpha;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.fill();
         }
 
-        ctx.globalAlpha = p.alpha;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
-        ctx.fillStyle = p.color;
-        ctx.fill();
+        for (let i = rings.length - 1; i >= 0; i--) {
+          const r = rings[i];
+          r.radius += 2;
+          r.alpha -= 0.01;
+          if (r.alpha <= 0) {
+            rings.splice(i, 1);
+            continue;
+          }
+          ctx.globalAlpha = r.alpha;
+          ctx.beginPath();
+          ctx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
+          ctx.strokeStyle = "rgba(255,255,255,0.7)";
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+
+        ctx.globalAlpha = 1;
+
+        if (Math.random() < 0.08) {
+          createFirework();
+        }
       }
 
-      // kruhy
-      for (let i = rings.length - 1; i >= 0; i--) {
-        const r = rings[i];
-        r.radius += 2;
-        r.alpha -= 0.01;
-        if (r.alpha <= 0) {
-          rings.splice(i, 1);
-          continue;
+      // konfety
+      if (confettiActive) {
+        if (confettiPieces.length < 250) {
+          for (let i = 0; i < 10; i++) spawnConfettiPiece();
         }
-        ctx.globalAlpha = r.alpha;
-        ctx.beginPath();
-        ctx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
-        ctx.strokeStyle = "rgba(255,255,255,0.7)";
-        ctx.lineWidth = 2;
-        ctx.stroke();
+
+        for (let i = confettiPieces.length - 1; i >= 0; i--) {
+          const c = confettiPieces[i];
+          c.y += c.vy;
+          c.x += c.vx;
+          c.angle += c.vAngle;
+
+          if (c.y - 20 > canvas.height) {
+            confettiPieces.splice(i, 1);
+            continue;
+          }
+
+          ctx.globalAlpha = 1;
+          ctx.save();
+          ctx.translate(c.x, c.y);
+          ctx.rotate(c.angle);
+          ctx.fillStyle = c.color;
+          ctx.fillRect(-c.size / 2, -c.size / 2, c.size, c.size * 1.4);
+          ctx.restore();
+        }
       }
 
       ctx.globalAlpha = 1;
-
-      // nekonečný ohňostroj – dokud neklikneš
-      if (Math.random() < 0.08) {
-        createFirework();
-      }
-
       requestAnimationFrame(animate);
+    }
+
+    // ===== sekvence 1 – text + ohňostroj =====
+    function startFirstSequence() {
+      typeText(fullText1, () => {
+        setTimeout(() => {
+          startFireworks();
+        }, 900); // kratší prodleva
+      });
     }
 
     function startFireworks() {
@@ -247,41 +291,95 @@
 
       canvas.style.display = "block";
       fireworksActive = true;
-      createFirework();
-      animate();
+      confettiActive = false;
+      particles = [];
+      rings = [];
 
-      // po chvíli zobrazíme tlačítko
+      if (!animationRunning) {
+        animationRunning = true;
+        animate();
+      }
+
+      createFirework();
+
       setTimeout(() => {
-        if (!secondSequenceStarted && fireworksActive) {
+        if (stage === 1 && fireworksActive) {
           clickBtn.style.display = "inline-block";
         }
       }, 2000);
     }
 
-    // ===== druhá sekvence (po kliknutí) =====
-    function startSecondSequence() {
-      if (secondSequenceStarted) return;
-      secondSequenceStarted = true;
+    // ===== sekvence 2 – text "tvůj vlastní sváteční web" + konfety =====
+    function startMiddleSequence() {
+      stage = 2;
 
+      // ukončit ohňostroj, ale ne animaci celkově
       fireworksActive = false;
+      particles = [];
+      rings = [];
+
+      clickBtn.style.display = "none";
+      messageEl.style.opacity = 1;
+
+      typeText(fullTextMid, () => {
+        setTimeout(() => {
+          startConfetti();
+        }, 600);
+      });
+    }
+
+    function startConfetti() {
+      canvas.style.display = "block";
+      confettiActive = true;
+      confettiPieces = [];
+
+      if (!animationRunning) {
+        animationRunning = true;
+        animate();
+      }
+
+      // po chvíli zase ukážeme tlačítko
+      setTimeout(() => {
+        if (stage === 2 && confettiActive) {
+          clickBtn.style.display = "inline-block";
+        }
+      }, 2000);
+    }
+
+    // ===== sekvence 3 – "měj krásný den kočko" + finální srdce =====
+    function startFinalSequence() {
+      stage = 3;
+
+      confettiActive = false;
+      confettiPieces = [];
+
+      animationRunning = false;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       canvas.style.display = "none";
       clickBtn.style.display = "none";
 
       messageEl.style.opacity = 1;
       typeText(fullText2, () => {
-        // po dopsání druhého textu ukážeme finální srdce
         setTimeout(() => {
           heartEl.style.display = "block";
-          // vynutíme reflow, aby animace zafungovala
-          void heartEl.offsetWidth;
+          void heartEl.offsetWidth; // reflow pro animaci
           heartEl.classList.add("grow");
-          // srdce už NIKDY nezmizí – necháme ho tam
+          // srdce už neodstraňujeme – zůstane na černé stránce
         }, 500);
       });
     }
 
-    clickBtn.addEventListener("click", startSecondSequence);
+    // tlačítko klikni – podle stage
+    clickBtn.addEventListener("click", () => {
+      if (stage === 1) {
+        startMiddleSequence();
+      } else if (stage === 2) {
+        startFinalSequence();
+      }
+    });
+
+    // start celé show
+    startFirstSequence();
   </script>
 
 </body>
