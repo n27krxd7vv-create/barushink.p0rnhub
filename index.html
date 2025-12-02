@@ -8,7 +8,7 @@
     html, body {
       margin: 0;
       padding: 0;
-      height: 100 %;
+      height: 100%;
       background: black;
       overflow: hidden;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -16,32 +16,32 @@
 
     .container {
       position: relative;
-      width: 100 %;
-      height: 100 %;
+      width: 100%;
+      height: 100%;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       text-align: center;
       pointer-events: none;
-      padding: 20 px;
+      padding: 20px;
       box-sizing: border-box;
     }
 
     #message {
-      font-size: 7 vw;
+      font-size: 7vw;
       font-weight: 800;
       line-height: 1.25;
       opacity: 1;
-      transition: opacity 1 s ease;
+      transition: opacity 1s ease;
       word-break: break-word;
     }
 
     .rainbow-text {
-      animation: rainbowColor 4 s linear infinite;
+      animation: rainbowColor 4s linear infinite;
     }
 
-    @ keyframes rainbowColor {
+    @keyframes rainbowColor {
       0%   { color: #ff0033; }
       16%  { color: #ff9900; }
       32%  { color: #ffee00; }
@@ -52,24 +52,24 @@
     }
 
     #heart, #flower {
-      font-size: 22 vw;
-      margin-top: 20 px;
+      font-size: 22vw;
+      margin-top: 20px;
       opacity: 0;
-      transform: scale (0.1);
+      transform: scale(0.1);
       transition:
-        transform 3.5 s ease-out,
-        opacity 1 s ease-in;
+        transform 3.5s ease-out,
+        opacity 1s ease-in;
       position: relative;
     }
 
     #flower {
-      font-size: 18 vw;
-      margin-top: 24 px;
+      font-size: 18vw;
+      margin-top: 24px;
     }
 
     .grow {
       opacity: 1;
-      transform: scale (2.8);
+      transform: scale(3.2);
     }
 
     /* třpytky kolem srdce */
@@ -77,26 +77,26 @@
     #heart.sparkle::after {
       content: "";
       position: absolute;
-      top: 50 %;
-      left: 50 %;
-      width: 170 %;
-      height: 170 %;
-      transform: translate (-50 %, -50 %);
+      top: 50%;
+      left: 50%;
+      width: 170%;
+      height: 170%;
+      transform: translate(-50%, -50%);
       pointer-events: none;
       background:
-        radial-gradient (circle, rgba (255,255,255,0.9) 0, transparent 40 %) 10 % 20 % / 8 px 8 px no-repeat,
-        radial-gradient (circle, rgba (255,255,255,0.9) 0, transparent 40 %) 80 % 30 % / 7 px 7 px no-repeat,
-        radial-gradient (circle, rgba (255,255,255,0.8) 0, transparent 40 %) 30 % 70 % / 6 px 6 px no-repeat,
-        radial-gradient (circle, rgba (255,255,255,0.8) 0, transparent 40 %) 70 % 80 % / 9 px 9 px no-repeat,
-        radial-gradient (circle, rgba (255,255,255,0.9) 0, transparent 40 %) 50 % 10 % / 5 px 5 px no-repeat;
+        radial-gradient(circle, rgba(255,255,255,0.9) 0, transparent 40%) 10% 20% / 8px 8px no-repeat,
+        radial-gradient(circle, rgba(255,255,255,0.9) 0, transparent 40%) 80% 30% / 7px 7px no-repeat,
+        radial-gradient(circle, rgba(255,255,255,0.8) 0, transparent 40%) 30% 70% / 6px 6px no-repeat,
+        radial-gradient(circle, rgba(255,255,255,0.8) 0, transparent 40%) 70% 80% / 9px 9px no-repeat,
+        radial-gradient(circle, rgba(255,255,255,0.9) 0, transparent 40%) 50% 10% / 5px 5px no-repeat;
       opacity: 0;
-      filter: blur (0.5 px);
-      animation: sparkle 1.8 s ease-in-out infinite;
+      filter: blur(0.5px);
+      animation: sparkle 1.8s ease-in-out infinite;
     }
 
-    @ keyframes sparkle {
-      0 %, 100 % { opacity: 0; transform: translate (-50 %, -50 %) scale (1); }
-      40 %, 60 % { opacity: 1; transform: translate (-50 %, -50 %) scale (1.05); }
+    @keyframes sparkle {
+      0%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+      40%, 60% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
     }
 
     canvas {
@@ -107,12 +107,12 @@
 
     #clickBtn {
       position: fixed;
-      top: 50 %;
-      left: 50 %;
-      transform: translate (-50 %, -50 %);
-      padding: 12 px 28 px;
-      font-size: 18 px;
-      border-radius: 999 px;
+      left: 50%;
+      bottom: 10%;
+      transform: translateX(-50%);
+      padding: 14px 32px;
+      font-size: 20px;
+      border-radius: 999px;
       border: none;
       background: #ffffff;
       color: #000;
@@ -123,7 +123,7 @@
     }
 
     #clickBtn:active {
-      transform: translate (-50 %, -50 %) scale (0.95);
+      transform: translateX(-50%) scale(0.95);
     }
   </style>
 </head>
@@ -132,10 +132,10 @@
   <div class="container">
     <div id="message" class="rainbow-text"></div>
     <div id="heart" class="rainbow-text">❤</div>
-    <div id="flower" class="rainbow-text">🌸</div>
+    <div id="flower" class="rainbow-text">🌻</div>
   </div>
 
-  <button id="clickBtn">klik</button>
+  <button id="clickBtn">klikni</button>
   <canvas id="fireworks"></canvas>
 
   <script>
@@ -150,7 +150,6 @@
     const fullText2 = "měj krásný den";
 
     let typingIndex = 0;
-    let typingTimeout = null;
     let currentText = "";
     let fireworksActive = false;
     let secondSequenceStarted = false;
@@ -165,7 +164,7 @@
         if (typingIndex < currentText.length) {
           messageEl.textContent += currentText.charAt(typingIndex);
           typingIndex++;
-          typingTimeout = setTimeout(step, 150); // pomalejší psaní
+          setTimeout(step, 150); // pomalejší psaní
         } else {
           if (onComplete) onComplete();
         }
@@ -173,7 +172,7 @@
       step();
     }
 
-    window.addEventListener("DOMContentLoaded", () => {
+    function startFirstSequence() {
       setTimeout(() => {
         typeText(fullText1, () => {
           setTimeout(() => {
@@ -182,7 +181,10 @@
           }, 800);
         });
       }, 600);
-    });
+    }
+
+    // spustíme hned, protože script je na konci body
+    startFirstSequence();
 
     function resizeCanvas() {
       canvas.width = window.innerWidth;
@@ -301,7 +303,7 @@
       createFirework();
       animationFrameId = requestAnimationFrame(animate);
 
-      // ukázat tlačítko "klik" po krátké době
+      // ukázat tlačítko "klikni" po krátké době
       setTimeout(() => {
         if (!secondSequenceStarted && fireworksActive) {
           clickBtn.style.display = "inline-block";
@@ -343,10 +345,6 @@
 
     // kliknutí na obrazovku během ohňostroje
     canvas.addEventListener("click", startSecondSequence);
-    document.body.addEventListener("click", (e) => {
-      if (!fireworksActive) return;
-      startSecondSequence();
-    });
   </script>
 
 </body>
