@@ -47,104 +47,22 @@
       100% { color: #ff0033; }
     }
 
-    /* srdce + kytička – defaultně vůbec nezabírají místo (display:none) */
-    #heart,
-    #flower {
+    /* finální srdce na konci – emoji s animací */
+    #heart {
       margin-top: 24px;
+      font-size: 22vw;
       opacity: 0;
       transform: scale(0.1);
-      transition: transform 3s ease-out, opacity 1s ease-in;
-      display: none;
+      transition: transform 3s ease-out, opacity 1.5s ease-in;
+      display: none; /* aby to neposouvalo text */
+      animation: rainbowText 4s linear infinite;
     }
 
-    #flower {
-      margin-top: 28px;
-    }
-
-    .grow {
+    #heart.grow {
       display: block;
       opacity: 1;
       transform: scale(2.6);
-    }
-
-    /* DUHOVÉ SRDCE – CSS tvar */
-    .heart-shape {
-      position: relative;
-      width: 22vw;
-      height: 22vw;
-      transform: rotate(-45deg);
-      border-radius: 50% 50% 0 50%;
-      background: #ff0033;
-      box-shadow: 0 0 40px #ff0033;
-      animation: rainbowHeart 4s linear infinite;
-    }
-
-    .heart-shape::before,
-    .heart-shape::after {
-      content: "";
-      position: absolute;
-      width: 22vw;
-      height: 22vw;
-      border-radius: 50%;
-      background: #ff0033;
-      box-shadow: 0 0 40px #ff0033;
-      animation: rainbowHeart 4s linear infinite;
-    }
-
-    .heart-shape::before {
-      top: -50%;
-      left: 0;
-    }
-
-    .heart-shape::after {
-      top: 0;
-      left: 50%;
-    }
-
-    @keyframes rainbowHeart {
-      0%   { background:#ff0033; box-shadow:0 0 40px #ff0033; }
-      16%  { background:#ff9900; box-shadow:0 0 40px #ff9900; }
-      32%  { background:#ffee00; box-shadow:0 0 40px #ffee00; }
-      48%  { background:#00ff66; box-shadow:0 0 40px #00ff66; }
-      64%  { background:#00ccff; box-shadow:0 0 40px #00ccff; }
-      80%  { background:#6633ff; box-shadow:0 0 40px #6633ff; }
-      100% { background:#ff0033; box-shadow:0 0 40px #ff0033; }
-    }
-
-    /* SLUNEČNICE Z CSS */
-    .flower-shape {
-      position: relative;
-      width: 20vw;
-      height: 20vw;
-    }
-
-    .flower-petal {
-      position: absolute;
-      width: 40%;
-      height: 40%;
-      background: #ffd54a;
-      border-radius: 50%;
-      box-shadow: 0 0 18px rgba(255, 213, 74, 0.8);
-    }
-
-    .flower-petal.p1 { top: -5%;  left: 30%; }
-    .flower-petal.p2 { top: 5%;   left: 60%; }
-    .flower-petal.p3 { top: 35%;  left: 72%; }
-    .flower-petal.p4 { top: 65%;  left: 60%; }
-    .flower-petal.p5 { top: 75%;  left: 30%; }
-    .flower-petal.p6 { top: 65%;  left: 0%;  }
-    .flower-petal.p7 { top: 35%;  left: -10%; }
-    .flower-petal.p8 { top: 5%;   left: 0%;  }
-
-    .flower-center {
-      position: absolute;
-      width: 46%;
-      height: 46%;
-      background: #5b3414;
-      border-radius: 50%;
-      top: 27%;
-      left: 27%;
-      box-shadow: 0 0 22px rgba(0,0,0,0.8);
+      text-shadow: 0 0 40px rgba(255,255,255,0.8);
     }
 
     canvas {
@@ -179,24 +97,7 @@
 
   <div class="container">
     <div id="message"></div>
-
-    <div id="heart">
-      <div class="heart-shape"></div>
-    </div>
-
-    <div id="flower">
-      <div class="flower-shape">
-        <div class="flower-petal p1"></div>
-        <div class="flower-petal p2"></div>
-        <div class="flower-petal p3"></div>
-        <div class="flower-petal p4"></div>
-        <div class="flower-petal p5"></div>
-        <div class="flower-petal p6"></div>
-        <div class="flower-petal p7"></div>
-        <div class="flower-petal p8"></div>
-        <div class="flower-center"></div>
-      </div>
-    </div>
+    <div id="heart">❤</div>
   </div>
 
   <button id="clickBtn">klikni</button>
@@ -205,20 +106,19 @@
   <script>
     const messageEl = document.getElementById("message");
     const heartEl = document.getElementById("heart");
-    const flowerEl = document.getElementById("flower");
     const canvas = document.getElementById("fireworks");
     const ctx = canvas.getContext("2d");
     const clickBtn = document.getElementById("clickBtn");
 
     const fullText1 = "všechno nejlepší k svátku Baru";
-    const fullText2 = "měj krásný den";
+    const fullText2 = "měj krásný den kočko";
 
     let fireworksActive = false;
     let secondSequenceStarted = false;
     let particles = [];
     let rings = [];
 
-    // ===== POMALÉ PSANÍ TEXTU =====
+    // ===== pomalé psaní textu =====
     function typeText(text, onComplete) {
       let i = 0;
       messageEl.textContent = "";
@@ -235,20 +135,20 @@
       step();
     }
 
-    // ===== PRVNÍ SEKVENCE =====
+    // ===== první sekvence =====
     function startFirstSequence() {
       typeText(fullText1, () => {
+        // zkrácená prodleva před ohňostrojem (cca poloviční)
         setTimeout(() => {
-          heartEl.classList.add("grow");
-          setTimeout(startFireworks, 2500);
-        }, 800);
+          startFireworks();
+        }, 900);
       });
     }
 
-    // spustíme hned (script je na konci body)
+    // spouštíme hned po načtení (script je na konci body)
     startFirstSequence();
 
-    // ===== CANVAS / FIREWORKS =====
+    // ===== canvas / ohňostroj =====
     function resizeCanvas() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
@@ -334,7 +234,7 @@
 
       ctx.globalAlpha = 1;
 
-      // nekonečný ohňostroj, dokud neklikneš
+      // nekonečný ohňostroj – dokud neklikneš
       if (Math.random() < 0.08) {
         createFirework();
       }
@@ -343,9 +243,6 @@
     }
 
     function startFireworks() {
-      heartEl.classList.remove("grow");
-      heartEl.style.display = "none";
-
       messageEl.style.opacity = 0;
 
       canvas.style.display = "block";
@@ -353,6 +250,7 @@
       createFirework();
       animate();
 
+      // po chvíli zobrazíme tlačítko
       setTimeout(() => {
         if (!secondSequenceStarted && fireworksActive) {
           clickBtn.style.display = "inline-block";
@@ -360,7 +258,7 @@
       }, 2000);
     }
 
-    // ===== DRUHÁ SEKVENCE =====
+    // ===== druhá sekvence (po kliknutí) =====
     function startSecondSequence() {
       if (secondSequenceStarted) return;
       secondSequenceStarted = true;
@@ -372,9 +270,14 @@
 
       messageEl.style.opacity = 1;
       typeText(fullText2, () => {
+        // po dopsání druhého textu ukážeme finální srdce
         setTimeout(() => {
-          flowerEl.classList.add("grow");
-        }, 800);
+          heartEl.style.display = "block";
+          // vynutíme reflow, aby animace zafungovala
+          void heartEl.offsetWidth;
+          heartEl.classList.add("grow");
+          // srdce už NIKDY nezmizí – necháme ho tam
+        }, 500);
       });
     }
 
